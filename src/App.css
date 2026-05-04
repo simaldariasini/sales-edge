@@ -195,7 +195,15 @@ textarea {
   padding: 20px 10px 42px 20px;
   min-height: 100%;
 }
+.organization-card {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
 
+.organization-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
 .organization-header,
 .distribution-header,
 .office-header {

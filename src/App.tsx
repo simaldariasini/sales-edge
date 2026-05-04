@@ -1,9 +1,6 @@
 
 import { HashRouter } from "react-router-dom";
-
-<HashRouter>
-  <App />
-</HashRouter>
+<HashRouter><App /></HashRouter>
 import { useEffect, useMemo, useState } from "react";
 import Sidebar from "./components/sidebar";
 import Topbar from "./components/topbar";
@@ -310,12 +307,11 @@ function App() {
 
               <div className="organization-grid">
                 {organizations.map((organization) => (
-                  <article className="organization-card" key={organization.code}>
+                  <article className="organization-card"
+                     key={organization.code}
+                     onClick={() => showOrganizationDetails(organization)}>
                     <div className="card-top">
-                      <button
-                        className="org-identity"
-                        onClick={() => showOrganizationDetails(organization)}
-                      >
+                      <div className="org-identity">
                         <OrganizationIcon />
                         <span>
                           <strong>{organization.name}</strong>
@@ -323,10 +319,11 @@ function App() {
                             {organization.code} - {organization.acronym}
                           </small>
                         </span>
-                      </button>
+                      </div>
                       <span className="status-pill">Active</span>
-                      <button className="card-more" aria-label="Organization actions">
-                        <ThreeDotIcon />
+                      <button  className="card-more"  aria-label="Organization actions"
+                        onClick={(e) => e.stopPropagation()}>
+                       <ThreeDotIcon />
                       </button>
                     </div>
 

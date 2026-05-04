@@ -1,4 +1,4 @@
-import { useState, type FC, type MouseEvent } from "react";
+import { useState, type FC } from "react";
 import { menuData } from "../data/menu";
 import "./sidebar.css";
 
@@ -24,49 +24,48 @@ const DropdownPanel: FC<DropdownPanelProps> = ({ menuTitle, onOpenView }) => {
 
   return (
     <div className="dropdown-panel">
-      {/* Panel Header */}
+      {/* Header */}
       <div className="dropdown-panel-header">
         <span className="dropdown-panel-title">{menuTitle}</span>
       </div>
 
-      {/* Children list */}
+      {/* Children */}
       <div className="dropdown-children">
         {children.map((child) => {
           const nestedItems = child.nested ?? [];
           const hasNestedItems = nestedItems.length > 0;
           const isExpanded = expandedGroups[child.title] || false;
 
-          const handleParentClick = () => {
-            if (!hasNestedItems) {
-              onOpenView(child.title);
-            }
-          };
-
-          const handleToggleClick = (event: MouseEvent<HTMLButtonElement>) => {
-            event.stopPropagation();
-            toggleGroup(child.title);
-          };
-
           return (
             <div key={child.title} className="dropdown-child-wrapper">
+              
+              {/* CLICKABLE ROW */}
               <div
                 className={`dropdown-child-item ${isExpanded ? "expanded" : ""}`}
-                onClick={handleParentClick}
+                onClick={() => {
+                  if (hasNestedItems) {
+                    toggleGroup(child.title);
+                  } else {
+                    onOpenView(child.title);
+                  }
+                }}
               >
                 <span className="dropdown-child-label">{child.title}</span>
+
                 {hasNestedItems && (
-                  <button
-                    type="button"
-                    className={isExpanded ? "dropdown-child-minus" : "dropdown-child-plus"}
-                    aria-label={`${isExpanded ? "Collapse" : "Expand"} ${child.title}`}
-                    onClick={handleToggleClick}
+                  <span
+                    className={
+                      isExpanded
+                        ? "dropdown-child-minus"
+                        : "dropdown-child-plus"
+                    }
                   >
                     {isExpanded ? "-" : "+"}
-                  </button>
+                  </span>
                 )}
               </div>
 
-              {/* Nested items */}
+              {/* Nested list */}
               {hasNestedItems && isExpanded && (
                 <div className="dropdown-nested-list">
                   {nestedItems.map((nestedItem) => (
