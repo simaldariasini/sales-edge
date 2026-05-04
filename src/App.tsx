@@ -1,5 +1,9 @@
 
+import { HashRouter } from "react-router-dom";
 
+<HashRouter>
+  <App />
+</HashRouter>
 import { useEffect, useMemo, useState } from "react";
 import Sidebar from "./components/sidebar";
 import Topbar from "./components/topbar";
