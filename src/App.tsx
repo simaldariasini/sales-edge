@@ -20,7 +20,9 @@ type ViewName =
   | "Department"
   | "Employee"
   | "Vehicles"
-  | "Organization Details";
+  | "Organization Details"
+  | "Department Details"
+  | "Distribution Details";
 
 interface Organization {
   code: string;
@@ -69,6 +71,12 @@ interface OrganizationForm {
   orgType: string;
   email: string;
   mobile: string;
+  website: string;
+  whatsApp: string;
+  linkedIn: string;
+  groupCompany: string;
+  industry: string;
+  description: string;
 }
 
 const tabOrder: ViewName[] = [
@@ -79,6 +87,8 @@ const tabOrder: ViewName[] = [
   "Employee",
   "Vehicles",
   "Organization Details",
+  "Department Details",
+  "Distribution Details",
 ];
 
 const organizations: Organization[] = [
@@ -189,6 +199,29 @@ const offices: Office[] = [
   { id: 6, org: "[ORG-0002] MKG Organization", office: "[OFF001] MKG Office", officeType: "Headoffice", warehouse: "Yes", contactName: "Karthik", phone: "8639211702", city: "Hyderabad", status: "Active" },
 ];
 
+interface Department {
+  id: number;
+  departmentCode: string;
+  departmentName: string;
+  departmentType: string;
+  orgCode: string;
+  orgName: string;
+  officeCode: string;
+  officeName: string;
+  officeType: string;
+  status: string;
+}
+
+const departments: Department[] = [
+  { id: 1, departmentCode: "yhnbgf", departmentName: "bgdvf", departmentType: "Service", orgCode: "ORG-0004", orgName: "Samsung", officeCode: "OFF007", officeName: "Samsung Hyderabad", officeType: "Regional Office", status: "Active" },
+  { id: 2, departmentCode: "D1234", departmentName: "demo23", departmentType: "Supply Chain", orgCode: "ORG-0004", orgName: "Samsung", officeCode: "OFF006", officeName: "Samsung India HO Gurgaon", officeType: "Head Office", status: "Active" },
+  { id: 3, departmentCode: "DOO5", departmentName: "Warehouse Operations", departmentType: "Supply Chain", orgCode: "ORG-0004", orgName: "Samsung", officeCode: "OFF007", officeName: "Samsung Hyderabad", officeType: "Regional Office", status: "Active" },
+  { id: 4, departmentCode: "DOO1", departmentName: "General Trade Sales", departmentType: "Sales", orgCode: "ORG-0004", orgName: "Samsung", officeCode: "OFF006", officeName: "Samsung India HO Gurgaon", officeType: "Head Office", status: "Active" },
+  { id: 5, departmentCode: "DOO04", departmentName: "Sequal", departmentType: "LD125", orgCode: "ORG-0002", orgName: "MKG Organization", officeCode: "OFF003", officeName: "GKM", officeType: "MainBranch", status: "Active" },
+  { id: 6, departmentCode: "DOO02", departmentName: "Account Department", departmentType: "AD554", orgCode: "ORG-0002", orgName: "MKG Organization", officeCode: "OFF001", officeName: "MKG Office", officeType: "Headoffice", status: "Active" },
+  { id: 7, departmentCode: "DOO01", departmentName: "Sales Department", departmentType: "SD123", orgCode: "ORG-0002", orgName: "MKG Organization", officeCode: "OFF001", officeName: "MKG Office", officeType: "Headoffice", status: "Active" },
+];
+
 function App() {
   const [activeTabs, setActiveTabs] = useState<ViewName[]>([]);
   const [activeView, setActiveView] = useState<ViewName | null>(null);
@@ -196,11 +229,51 @@ function App() {
   const [showExports, setShowExports] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDistributionModal, setShowDistributionModal] = useState(false);
+  const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
+  const [showEditDistributionModal, setShowEditDistributionModal] = useState(false);
+  const [editDistributionChannel, setEditDistributionChannel] = useState<DistributionChannel | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(departments[0]);
+  const [selectedDistributionChannel, setSelectedDistributionChannel] = useState<DistributionChannel | null>(null);
+  const [showDeleteDepartmentModal, setShowDeleteDepartmentModal] = useState(false);
+  const [departmentToDelete, setDepartmentToDelete] = useState<Department | null>(null);
+  const [showEditDepartmentModal, setShowEditDepartmentModal] = useState(false);
+  const [departmentToEdit, setDepartmentToEdit] = useState<Department | null>(null);
+  const [organizationSearch, setOrganizationSearch] = useState("");
+  const [distributionSearch, setDistributionSearch] = useState("");
+  const [departmentSearch, setDepartmentSearch] = useState("");
+
+  const filteredOrganizations = organizations.filter((organization) =>
+    organization.name.toLowerCase().includes(organizationSearch.toLowerCase()) ||
+    organization.code.toLowerCase().includes(organizationSearch.toLowerCase()) ||
+    organization.acronym.toLowerCase().includes(organizationSearch.toLowerCase()),
+  );
+
+  const filteredDistributionChannels = distributionChannels.filter((channel) =>
+    channel.orgName.toLowerCase().includes(distributionSearch.toLowerCase()) ||
+    channel.orgCode.toLowerCase().includes(distributionSearch.toLowerCase()) ||
+    channel.distributionName.toLowerCase().includes(distributionSearch.toLowerCase()) ||
+    channel.distributionCode.toLowerCase().includes(distributionSearch.toLowerCase()),
+  );
+
+  const handleRefresh = () => {
+    console.log("Refresh clicked");
+  };
 
   useEffect(() => {
     const closeExports = () => setShowExports(false);
     document.addEventListener("mousedown", closeExports);
     return () => document.removeEventListener("mousedown", closeExports);
+  }, []);
+
+  useEffect(() => {
+    const closeActionMenu = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest(".card-action-menu") && !target.closest(".card-more")) {
+        setOpenActionMenu(null);
+      }
+    };
+    document.addEventListener("mousedown", closeActionMenu);
+    return () => document.removeEventListener("mousedown", closeActionMenu);
   }, []);
 
   const openView = (view: string) => {
@@ -212,6 +285,16 @@ function App() {
       return tabOrder.filter((tab) => withView.includes(tab));
     });
     setActiveView(typedView);
+  };
+
+  const showDepartmentDetails = (department: Department) => {
+    setSelectedDepartment(department);
+    openView("Department Details");
+  };
+
+  const showDistributionDetails = (channel: DistributionChannel) => {
+    setSelectedDistributionChannel(channel);
+    openView("Distribution Details");
   };
 
   const closeView = (view: ViewName) => {
@@ -227,6 +310,7 @@ function App() {
   };
 
   const showOrganizationDetails = (organization: Organization) => {
+    setOpenActionMenu(null);
     setSelectedOrganization(organization);
     openView("Organization Details");
   };
@@ -272,12 +356,21 @@ function App() {
               <div className="organization-header">
                 <div className="organization-title-row">
                   <h1>Organization (3)</h1>
-                  <button className="refresh-button" aria-label="Refresh">
+                  <button className="refresh-button" aria-label="Refresh" onClick={handleRefresh}>
                     <RefreshIcon />
                   </button>
                 </div>
 
                 <div className="organization-actions" onMouseDown={(event) => event.stopPropagation()}>
+                  <label className="distribution-search">
+                    <input
+                      value={organizationSearch}
+                      onChange={(event) => setOrganizationSearch(event.target.value)}
+                      placeholder="Search by Name / Code"
+                      aria-label="Search organizations"
+                    />
+                    <SearchIcon />
+                  </label>
                   <button className="new-button" onClick={() => setShowAddModal(true)}>
                     <span>+</span> New
                   </button>
@@ -306,7 +399,7 @@ function App() {
               </div>
 
               <div className="organization-grid">
-                {organizations.map((organization) => (
+                {filteredOrganizations.map((organization) => (
                   <article className="organization-card"
                      key={organization.code}
                      onClick={() => showOrganizationDetails(organization)}>
@@ -321,10 +414,28 @@ function App() {
                         </span>
                       </div>
                       <span className="status-pill">Active</span>
-                      <button  className="card-more"  aria-label="Organization actions"
-                        onClick={(e) => e.stopPropagation()}>
-                       <ThreeDotIcon />
-                      </button>
+                      <div className="card-more-wrapper">
+                        <button
+                          className="card-more"
+                          aria-label="Organization actions"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenActionMenu((current) => (current === organization.code ? null : organization.code));
+                          }}
+                        >
+                          <ThreeDotIcon />
+                        </button>
+                        {openActionMenu === organization.code && (
+                          <div className="card-action-menu" onClick={(e) => e.stopPropagation()}>
+                            <button type="button" className="action-item">
+                              Edit
+                            </button>
+                            <button type="button" className="action-item action-item-danger">
+                              Inactive
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="card-mid">
@@ -367,14 +478,19 @@ function App() {
               <div className="distribution-header">
                 <div className="organization-title-row">
                   <h1>Distribution Channels (5)</h1>
-                  <button className="refresh-button" aria-label="Refresh">
+                  <button className="refresh-button" aria-label="Refresh" onClick={handleRefresh}>
                     <RefreshIcon />
                   </button>
                 </div>
 
                 <div className="distribution-actions" onMouseDown={(event) => event.stopPropagation()}>
                   <label className="distribution-search">
-                    <input placeholder="Search Distribution Channels..." />
+                    <input
+                      value={distributionSearch}
+                      onChange={(event) => setDistributionSearch(event.target.value)}
+                      placeholder="Search Distribution Channels..."
+                      aria-label="Search distribution channels"
+                    />
                     <SearchIcon />
                   </label>
                   <button className="new-button add-button" onClick={() => setShowDistributionModal(true)}>
@@ -418,7 +534,7 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {distributionChannels.map((channel) => (
+                    {filteredDistributionChannels.map((channel) => (
                       <tr key={channel.distributionCode}>
                         <td>{channel.id}</td>
                         <td>{channel.orgCode}</td>
@@ -428,10 +544,17 @@ function App() {
                         <td>{channel.status}</td>
                         <td>
                           <div className="table-actions">
-                            <button aria-label="View distribution channel">
+                            <button aria-label="View distribution channel" onClick={() => showDistributionDetails(channel)}>
                               <EyeIcon />
                             </button>
-                            <button aria-label="Edit distribution channel">
+                            <button
+                              aria-label="Edit distribution channel"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditDistributionChannel(channel);
+                                setShowEditDistributionModal(true);
+                              }}
+                            >
                               <PencilIcon />
                             </button>
                           </div>
@@ -444,12 +567,116 @@ function App() {
             </section>
           )}
 
+          {activeView === "Department" && (
+            <section className="department-page">
+              <div className="department-header">
+                <div className="organization-title-row">
+                  <h1>Departments ({departments.length})</h1>
+                  <button className="refresh-button" aria-label="Refresh" onClick={handleRefresh}>
+                    <RefreshIcon />
+                  </button>
+                </div>
+
+                <div className="department-actions" onMouseDown={(event) => event.stopPropagation()}>
+                  <label className="distribution-search">
+                    <input value={departmentSearch} onChange={(event) => setDepartmentSearch(event.target.value)} placeholder="Search by Name / Code" />
+                    <SearchIcon />
+                  </label>
+                  <button className="new-button add-button">
+                    <span>+</span> New
+                  </button>
+                  <button
+                    className="more-button"
+                    aria-label="Export options"
+                    onClick={() => setShowExports((value) => !value)}
+                  >
+                    <ThreeDotIcon />
+                  </button>
+
+                  {showExports && (
+                    <div className="export-menu">
+                      <button className="export-item">
+                        <ExcelIcon /> Export to Excel
+                      </button>
+                      <button className="export-item">
+                        <PdfIcon /> Export to PDF
+                      </button>
+                      <button className="export-item">
+                        <CsvIcon /> Export to CSV
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <article className="department-card">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>S No</th>
+                      <th>Department Code</th>
+                      <th>Department Name</th>
+                      <th>Department Type</th>
+                      <th>Org</th>
+                      <th>Office</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {departments
+                      .filter((department) =>
+                        department.departmentName.toLowerCase().includes(departmentSearch.toLowerCase()) ||
+                        department.departmentCode.toLowerCase().includes(departmentSearch.toLowerCase()),
+                      )
+                      .map((department) => (
+                        <tr key={department.departmentCode}>
+                          <td>{department.id}</td>
+                          <td>{department.departmentCode}</td>
+                          <td>{department.departmentName}</td>
+                          <td>{department.departmentType}</td>
+                          <td>{`[${department.orgCode}] ${department.orgName}`}</td>
+                          <td>{`[${department.officeCode}] ${department.officeName}`}</td>
+                          <td>{department.status}</td>
+                          <td>
+                            <div className="table-actions">
+                              <button aria-label="View department" onClick={() => showDepartmentDetails(department)}>
+                                <EyeIcon />
+                              </button>
+                              <button
+                                aria-label="Edit department"
+                                onClick={() => {
+                                  setDepartmentToEdit(department);
+                                  setShowEditDepartmentModal(true);
+                                }}
+                              >
+                                <PencilIcon />
+                              </button>
+                              <button
+                                aria-label="Delete department"
+                                onClick={() => {
+                                  setDepartmentToDelete(department);
+                                  setShowDeleteDepartmentModal(true);
+                                }}
+                              >
+                                <BinIcon />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </article>
+            </section>
+          )}
+
           {activeView === "Office" && (
             <section className="office-page">
               <div className="office-header">
                 <div className="organization-title-row">
                   <h1>Offices (6)</h1>
-                  <button className="refresh-button" aria-label="Refresh">
+                  <button className="refresh-button" aria-label="Refresh" onClick={handleRefresh}>
                     <RefreshIcon />
                   </button>
                 </div>
@@ -563,12 +790,75 @@ function App() {
             </section>
           )}
 
+          {activeView === "Distribution Details" && selectedDistributionChannel && (
+            <section className="details-page">
+              <h1>Distribution Channel Details</h1>
+              <article className="details-card">
+                <h2>Details</h2>
+                <div className="details-grid">
+                  <Detail label="Distribution Channel Code" value={selectedDistributionChannel.distributionCode} />
+                  <Detail label="Distribution Channel Name" value={selectedDistributionChannel.distributionName} />
+                  <Detail label="Organization Code" value={selectedDistributionChannel.orgCode} />
+                  <Detail label="Organization Name" value={selectedDistributionChannel.orgName} />
+                  <Detail label="Status" value={selectedDistributionChannel.status} />
+                </div>
+              </article>
+            </section>
+          )}
+
+          {activeView === "Department Details" && selectedDepartment && (
+            <section className="details-page">
+              <h1>Department Details</h1>
+              <article className="details-card">
+                <h2>Details</h2>
+                <div className="details-grid">
+                  <Detail label="Department Code" value={selectedDepartment.departmentCode} />
+                  <Detail label="Department Name" value={selectedDepartment.departmentName} />
+                  <Detail label="Department Type" value={selectedDepartment.departmentType} />
+                  <Detail label="Organization Code" value={selectedDepartment.orgCode} />
+                  <Detail label="Organization Name" value={selectedDepartment.orgName} />
+                  <Detail label="Office Code" value={selectedDepartment.officeCode} />
+                  <Detail label="Office Name" value={selectedDepartment.officeName} />
+                  <Detail label="Office Type" value={selectedDepartment.officeType} />
+                  <Detail label="Status" value={selectedDepartment.status} />
+                </div>
+              </article>
+            </section>
+          )}
+
           {!activeView && <div className="empty-state"></div>}
         </main>
       </div>
 
       {showAddModal && <AddOrganizationModal onClose={() => setShowAddModal(false)} />}
       {showDistributionModal && <AddDistributionModal onClose={() => setShowDistributionModal(false)} />}
+      {showEditDistributionModal && editDistributionChannel && (
+        <EditDistributionModal
+          channel={editDistributionChannel}
+          onClose={() => {
+            setShowEditDistributionModal(false);
+            setEditDistributionChannel(null);
+          }}
+        />
+      )}
+      {showEditDepartmentModal && departmentToEdit && (
+        <EditDepartmentModal
+          department={departmentToEdit}
+          onClose={() => {
+            setShowEditDepartmentModal(false);
+            setDepartmentToEdit(null);
+          }}
+        />
+      )}
+      {showDeleteDepartmentModal && departmentToDelete && (
+        <DeleteDepartmentModal
+          department={departmentToDelete}
+          onClose={() => {
+            setShowDeleteDepartmentModal(false);
+            setDepartmentToDelete(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -583,6 +873,7 @@ function Detail({ label, value, wide = false }: { label: string; value: string; 
 }
 
 function AddOrganizationModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<OrganizationForm>({
     organizationName: "",
     legalName: "",
@@ -591,80 +882,187 @@ function AddOrganizationModal({ onClose }: { onClose: () => void }) {
     orgType: "",
     email: "",
     mobile: "",
+    website: "",
+    whatsApp: "",
+    linkedIn: "",
+    groupCompany: "",
+    industry: "",
+    description: "",
   });
 
+  const emailError = form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) ? "Invalid email" : "";
+  const mobileError = form.mobile && !/^\d+$/.test(form.mobile) ? "Invalid phone number" : "";
+  const whatsAppError = form.whatsApp && !/^\d+$/.test(form.whatsApp) ? "Invalid phone number" : "";
+
   const canContinue = useMemo(
-    () => Object.values(form).every((value) => value.trim().length > 0),
-    [form],
+    () =>
+      form.organizationName.trim().length > 0 &&
+      form.legalName.trim().length > 0 &&
+      form.acronym.trim().length > 0 &&
+      form.country.trim().length > 0 &&
+      form.orgType.trim().length > 0 &&
+      form.email.trim().length > 0 &&
+      form.mobile.trim().length > 0 &&
+      !emailError &&
+      !mobileError &&
+      !whatsAppError,
+    [form, emailError, mobileError, whatsAppError],
   );
 
   const updateField = (field: keyof OrganizationForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
+  const handleAction = () => {
+    if (step === 1) {
+      setStep(2);
+    } else {
+      onClose();
+    }
+  };
+
   return (
     <div className="modal-backdrop">
-      <section className="add-modal" role="dialog" aria-modal="true" aria-labelledby="add-org-title">
+      <section className="add-modal org-modal" role="dialog" aria-modal="true" aria-labelledby="add-org-title">
         <div className="modal-heading">
           <div>
             <h2 id="add-org-title">Add New Organization</h2>
             <p>Fill in the details to create a new organization</p>
           </div>
           <div className="stepper">
-            <span className="step step-active">1</span>
-            <strong>Add New Organization</strong>
-            <span className="step">2</span>
-            <strong className="step-muted">Preview</strong>
+            <div className="step-item">
+              <span className={`step ${step === 1 ? "step-active" : ""}`}>1</span>
+              <strong className="step-label">Add New Organization</strong>
+            </div>
+            <div className="step-item">
+              <span className={`step ${step === 2 ? "step-active" : ""}`}>2</span>
+              <strong className={`step-preview ${step === 2 ? "" : "step-muted"}`}>Preview</strong>
+            </div>
           </div>
           <button className="modal-close" aria-label="Close" onClick={onClose}>
             x
           </button>
         </div>
 
-        <div className="modal-body">
-          <div className="form-top-row">
-            <label className="code-field">
-              <span>
-                Organization Code <b>*</b>
-              </span>
-              <strong>ORG-0005</strong>
-            </label>
-            <label className="checkbox-field">
-              <input type="checkbox" defaultChecked />
-              <span>Is Active</span>
-            </label>
-          </div>
+        <div className={`modal-body${step === 2 ? " preview-only" : ""}`}>
+          {step === 1 ? (
+            <>
+              <div className="form-top-row">
+                <label className="code-field">
+                  <span>
+                    Organization Code <b>*</b>
+                  </span>
+                  <strong>ORG-0005</strong>
+                </label>
+                <label className="checkbox-field">
+                  <input type="checkbox" defaultChecked />
+                  <span>Is Active</span>
+                </label>
+              </div>
 
-          <div className="form-grid">
-            <TextField label="Organization Name" required value={form.organizationName} onChange={(value) => updateField("organizationName", value)} />
-            <TextField label="Legal Name" required value={form.legalName} onChange={(value) => updateField("legalName", value)} />
-            <TextField label="Acronym" required half value={form.acronym} onChange={(value) => updateField("acronym", value)} />
-            <SelectField label="Country" required value={form.country} options={countryOptions} onChange={(value) => updateField("country", value)} />
-            <SelectField label="Org Type" required value={form.orgType} options={orgTypeOptions} onChange={(value) => updateField("orgType", value)} />
-            <TextField label="Email Address" required half value={form.email} onChange={(value) => updateField("email", value)} />
-            <TextField label="Mobile Number" required half value={form.mobile} onChange={(value) => updateField("mobile", value)} />
-            <TextField label="Website" half />
-            <TextField label="WhatsApp Number" half />
-            <TextField label="LinkedIn" half />
-            <TextField label="Group Company Name" half />
-            <TextField label="Industry Group Name" half />
-            <label className="form-field form-full">
-              <span>Description</span>
-              <textarea placeholder="Enter here" />
-            </label>
-          </div>
+              <div className="form-grid">
+                <TextField label="Organization Name" required value={form.organizationName} onChange={(value) => updateField("organizationName", value)} />
+                <TextField label="Legal Name" required value={form.legalName} onChange={(value) => updateField("legalName", value)} />
+                <TextField label="Acronym" required half value={form.acronym} onChange={(value) => updateField("acronym", value)} />
+                <SelectField label="Country" required value={form.country} options={countryOptions} onChange={(value) => updateField("country", value)} />
+                <SelectField label="Org Type" required value={form.orgType} options={orgTypeOptions} onChange={(value) => updateField("orgType", value)} />
+                <TextField label="Email Address" required half value={form.email} error={emailError} onChange={(value) => updateField("email", value)} />
+                <TextField label="Mobile Number" required half value={form.mobile} error={mobileError} onChange={(value) => updateField("mobile", value)} />
+                <TextField label="Website" half value={form.website} onChange={(value) => updateField("website", value)} />
+                <TextField label="WhatsApp Number" half value={form.whatsApp} error={whatsAppError} onChange={(value) => updateField("whatsApp", value)} />
+                <TextField label="LinkedIn" half value={form.linkedIn} onChange={(value) => updateField("linkedIn", value)} />
+                <TextField label="Group Company Name" half value={form.groupCompany} onChange={(value) => updateField("groupCompany", value)} />
+                <TextField label="Industry Group Name" half value={form.industry} onChange={(value) => updateField("industry", value)} />
+                <label className="form-field form-full">
+                  <span>Description</span>
+                  <textarea
+                    value={form.description}
+                    onChange={(event) => updateField("description", event.target.value)}
+                    placeholder="Enter here"
+                  />
+                </label>
+              </div>
+            </>
+          ) : (
+            <div className="preview-card">
+              <div className="preview-card-body preview-columns">
+                <div className="preview-item preview-item-left">
+                  <span>Organization Code</span>
+                  <strong>ORG-0005</strong>
+                </div>
+                <div className="preview-item">
+                  <span>Acronym</span>
+                  <strong>{form.acronym || "-"}</strong>
+                </div>
+                <div className="preview-item preview-item-left">
+                  <span>Organization Name</span>
+                  <strong>{form.organizationName || "-"}</strong>
+                </div>
+                <div className="preview-item">
+                  <span>Legal Name</span>
+                  <strong>{form.legalName || "-"}</strong>
+                </div>
+                <div className="preview-item preview-item-left">
+                  <span>Org Type</span>
+                  <strong>{form.orgType || "-"}</strong>
+                </div>
+                <div className="preview-item">
+                  <span>Country</span>
+                  <strong>{form.country || "-"}</strong>
+                </div>
+                <div className="preview-item preview-item-left">
+                  <span>Email</span>
+                  <strong>{form.email || "-"}</strong>
+                </div>
+                <div className="preview-item">
+                  <span>Mobile No</span>
+                  <strong>{form.mobile || "-"}</strong>
+                </div>
+                <div className="preview-item preview-item-left">
+                  <span>WhatsApp Number</span>
+                  <strong>{form.whatsApp || "-"}</strong>
+                </div>
+                <div className="preview-item">
+                  <span>Website</span>
+                  <strong>{form.website || "-"}</strong>
+                </div>
+                <div className="preview-item preview-item-left">
+                  <span>LinkedIn</span>
+                  <strong>{form.linkedIn || "-"}</strong>
+                </div>
+                <div className="preview-item">
+                  <span>Group Company Name</span>
+                  <strong>{form.groupCompany || "-"}</strong>
+                </div>
+                <div className="preview-item preview-item-full preview-item-left">
+                  <span>Description</span>
+                  <strong>{form.description || "-"}</strong>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="modal-footer">
+          <button className="cancel-button" onClick={() => (step === 1 ? onClose() : setStep(1))}>
+            {step === 1 ? "Cancel" : "Back"}
+          </button>
           <div className="form-note">
-            <span>i</span> Please fill the required details, click on 'Next' button to proceed
+            <span>i</span>
+            {step === 1
+              ? "Please fill the required details, click on 'Next' button to proceed"
+              : "Verify detailed preview and click on 'Submit' to proceed"}
           </div>
-          <button className="cancel-button" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="next-button" disabled={!canContinue}>
-            Next &gt;
-          </button>
+          <div className="footer-actions">
+            {step === 2 && (
+              <button className="cancel-button" onClick={onClose}>
+                Cancel
+              </button>
+            )}
+            <button className="next-button" disabled={step === 1 ? !canContinue : false} onClick={handleAction}>
+              {step === 1 ? "Next >" : "Submit"}
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -672,6 +1070,30 @@ function AddOrganizationModal({ onClose }: { onClose: () => void }) {
 }
 
 function AddDistributionModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [form, setForm] = useState({
+    organization: "",
+    distributionName: "",
+    description: "",
+  });
+
+  const canContinue = useMemo(
+    () => form.organization.trim().length > 0 && form.distributionName.trim().length > 0,
+    [form],
+  );
+
+  const updateField = (field: keyof typeof form, value: string) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleAction = () => {
+    if (step === 1) {
+      setStep(2);
+    } else {
+      onClose();
+    }
+  };
+
   return (
     <div className="modal-backdrop">
       <section className="add-modal distribution-modal" role="dialog" aria-modal="true" aria-labelledby="add-distribution-title">
@@ -680,10 +1102,242 @@ function AddDistributionModal({ onClose }: { onClose: () => void }) {
             <h2 id="add-distribution-title">Add Distribution Channel</h2>
           </div>
           <div className="stepper">
-            <span className="step step-active">1</span>
-            <strong>Add Distribution Channel</strong>
-            <span className="step">2</span>
-            <strong className="step-muted">Preview</strong>
+            <div className="step-item">
+              <span className={`step ${step === 1 ? "step-active" : ""}`}>1</span>
+              <strong className="step-label">Add Distribution Channel</strong>
+            </div>
+            <div className="step-item">
+              <span className={`step ${step === 2 ? "step-active" : ""}`}>2</span>
+              <strong className={`step-preview ${step === 2 ? "" : "step-muted"}`}>Preview</strong>
+            </div>
+          </div>
+          <button className="modal-close" aria-label="Close" onClick={onClose}>
+            x
+          </button>
+        </div>
+
+        <div className={`modal-body distribution-modal-body${step === 2 ? " preview-only" : ""}`}>
+          {step === 1 ? (
+            <div className="distribution-form-grid">
+              <label className="code-field form-full">
+                <span>
+                  Distribution Channel Code <b>*</b>
+                </span>
+                <strong>DC-0008</strong>
+              </label>
+              <SelectField
+                label="Organization"
+                required
+                value={form.organization}
+                options={organizations.map((organization) => organization.name.replace("...", ""))}
+                onChange={(value) => updateField("organization", value)}
+              />
+              <TextField
+                label="Distribution Channel Name"
+                required
+                half
+                value={form.distributionName}
+                onChange={(value) => updateField("distributionName", value)}
+              />
+              <label className="form-field distribution-description form-full">
+                <span>Description</span>
+                <textarea
+                  value={form.description}
+                  onChange={(event) => updateField("description", event.target.value)}
+                  placeholder="Enter here"
+                />
+              </label>
+            </div>
+          ) : (
+            <div className="preview-card distribution-preview-card">
+              <div className="preview-card-body preview-columns">
+                <div className="preview-item preview-item-full preview-item-left">
+                  <span>Distribution Channel Code</span>
+                  <strong>DC-0008</strong>
+                </div>
+                <div className="preview-item preview-item-left">
+                  <span>Organization</span>
+                  <strong>{form.organization || "-"}</strong>
+                </div>
+                <div className="preview-item preview-item-left">
+                  <span>Distribution Channel Name</span>
+                  <strong>{form.distributionName || "-"}</strong>
+                </div>
+                <div className="preview-item preview-item-full preview-item-left">
+                  <span>Description</span>
+                  <strong>{form.description || "-"}</strong>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button className="cancel-button" onClick={() => (step === 1 ? onClose() : setStep(1))}>
+            {step === 1 ? "Cancel" : "Back"}
+          </button>
+          <div className="form-note">
+            <span>i</span>
+            {step === 1
+              ? "Please fill the required details, click on 'Next' button to proceed"
+              : "Verify detailed preview and click on 'Submit' to proceed"}
+          </div>
+          <div className="footer-actions">
+            {step === 2 && (
+              <button className="cancel-button" onClick={onClose}>
+                Cancel
+              </button>
+            )}
+            <button className="next-button" disabled={step === 1 ? !canContinue : false} onClick={handleAction}>
+              {step === 1 ? "Next >" : "Submit"}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function EditDistributionModal({ channel, onClose }: { channel: DistributionChannel; onClose: () => void }) {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [form, setForm] = useState({
+    distributionName: channel.distributionName,
+    description: "",
+  });
+
+  const canContinue = useMemo(() => form.distributionName.trim().length > 0, [form]);
+
+  const updateField = (field: keyof typeof form, value: string) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleAction = () => {
+    if (step === 1) {
+      setStep(2);
+    } else {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <section className="add-modal distribution-modal" role="dialog" aria-modal="true" aria-labelledby="edit-distribution-title">
+        <div className="modal-heading">
+          <div>
+            <h2 id="edit-distribution-title">Edit Distribution Channel</h2>
+          </div>
+          <div className="stepper">
+            <div className="step-item">
+              <span className={`step ${step === 1 ? "step-active" : ""}`}>1</span>
+              <strong className="step-label">Edit Distribution Channel</strong>
+            </div>
+            <div className="step-item">
+              <span className={`step ${step === 2 ? "step-active" : ""}`}>2</span>
+              <strong className={`step-preview ${step === 2 ? "" : "step-muted"}`}>Preview</strong>
+            </div>
+          </div>
+          <button className="modal-close" aria-label="Close" onClick={onClose}>
+            x
+          </button>
+        </div>
+
+        <div className={`modal-body distribution-modal-body${step === 2 ? " preview-only" : ""}`}>
+          {step === 1 ? (
+            <div className="distribution-form-grid">
+              <div className="form-field distribution-readonly">
+                <span>Organization</span>
+                <strong>{channel.orgName}</strong>
+              </div>
+              <label className="code-field">
+                <span>Distribution Channel Code</span>
+                <strong>{channel.distributionCode}</strong>
+              </label>
+              <TextField
+                label="Distribution Channel Name"
+                required
+                half
+                value={form.distributionName}
+                onChange={(value) => updateField("distributionName", value)}
+              />
+              <label className="form-field distribution-description">
+                <span>Description</span>
+                <textarea
+                  value={form.description}
+                  onChange={(event) => updateField("description", event.target.value)}
+                  placeholder="Enter here"
+                />
+              </label>
+            </div>
+          ) : (
+            <div className="preview-card distribution-preview-card">
+              <div className="preview-card-body preview-columns">
+                <div className="preview-item preview-item-full preview-item-left">
+                  <span>Distribution Channel Code</span>
+                  <strong>{channel.distributionCode}</strong>
+                </div>
+                <div className="preview-item preview-item-left">
+                  <span>Organization</span>
+                  <strong>{channel.orgName}</strong>
+                </div>
+                <div className="preview-item preview-item-left">
+                  <span>Distribution Channel Name</span>
+                  <strong>{form.distributionName || "-"}</strong>
+                </div>
+                <div className="preview-item preview-item-full preview-item-left">
+                  <span>Description</span>
+                  <strong>{form.description || "-"}</strong>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button className="cancel-button" onClick={() => (step === 1 ? onClose() : setStep(1))}>
+            {step === 1 ? "Cancel" : "Back"}
+          </button>
+          <div className="form-note">
+            <span>i</span>
+            {step === 1
+              ? "Please fill the required details, click on 'Next' button to proceed"
+              : "Verify detailed preview and click on 'Submit' to proceed"}
+          </div>
+          <div className="footer-actions">
+            {step === 2 && (
+              <button className="cancel-button" onClick={onClose}>
+                Cancel
+              </button>
+            )}
+            <button className="next-button" disabled={!canContinue} onClick={handleAction}>
+              {step === 1 ? "Next >" : "Submit"}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function EditDepartmentModal({ department, onClose }: { department: Department; onClose: () => void }) {
+  const [form, setForm] = useState({
+    departmentName: department.departmentName,
+    departmentType: department.departmentType,
+    departmentCode: department.departmentCode,
+    officeName: department.officeName,
+    status: department.status,
+  });
+
+  const updateField = (field: keyof typeof form, value: string) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <section className="add-modal distribution-modal" role="dialog" aria-modal="true" aria-labelledby="edit-department-title">
+        <div className="modal-heading">
+          <div>
+            <h2 id="edit-department-title">Edit Department</h2>
+            <p>Edit the department information below</p>
           </div>
           <button className="modal-close" aria-label="Close" onClick={onClose}>
             x
@@ -692,31 +1346,80 @@ function AddDistributionModal({ onClose }: { onClose: () => void }) {
 
         <div className="modal-body distribution-modal-body">
           <div className="distribution-form-grid">
-            <SelectField label="Organization" required options={organizations.map((organization) => organization.name.replace("...", ""))} />
-            <label className="code-field">
-              <span>
-                Distribution Channel Code <b>*</b>
-              </span>
-              <strong>DC-0008</strong>
-            </label>
-            <TextField label="Distribution Channel Name" required half />
-            <label className="form-field distribution-description">
-              <span>Description</span>
-              <textarea placeholder="Enter here" />
-            </label>
+            <div className="form-field distribution-readonly">
+              <span>Org</span>
+              <strong>{department.orgCode}</strong>
+            </div>
+            <div className="form-field distribution-readonly">
+              <span>Office</span>
+              <strong>{department.officeName}</strong>
+            </div>
+            <TextField label="Department Code" required half value={form.departmentCode} onChange={(value) => updateField("departmentCode", value)} />
+            <TextField label="Department Type" required half value={form.departmentType} onChange={(value) => updateField("departmentType", value)} />
+            <TextField label="Department Name" required half value={form.departmentName} onChange={(value) => updateField("departmentName", value)} />
+            
           </div>
         </div>
 
         <div className="modal-footer">
           <div className="form-note">
-            <span>i</span> Please fill the required details, click on 'Next' button to proceed
+            <span>i</span>
+            Please fill the required details, click on 'Next' button to proceed
           </div>
-          <button className="cancel-button" onClick={onClose}>
-            Cancel
+          <div className="footer-actions">
+            <button className="cancel-button" onClick={onClose}>
+              Cancel
+            </button>
+            <button className="next-button" onClick={onClose}>
+              Save
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function DeleteDepartmentModal({ department, onClose }: { department: Department; onClose: () => void }) {
+  const [comments, setComments] = useState("");
+
+  return (
+    <div className="modal-backdrop">
+      <section className="add-modal distribution-modal" role="dialog" aria-modal="true" aria-labelledby="delete-department-title">
+        <div className="modal-heading">
+          <div>
+            <h2 id="delete-department-title">Delete Department {department.departmentName} - {department.departmentType}</h2>
+            <p>Are you sure you want to delete this Department?</p>
+          </div>
+          <button className="modal-close" aria-label="Close" onClick={onClose}>
+            x
           </button>
-          <button className="next-button" disabled>
-            Next &gt;
-          </button>
+        </div>
+
+        <div className="modal-body distribution-modal-body">
+          <label className="form-field distribution-description">
+            <span>Comments</span>
+            <textarea
+              value={comments}
+              onChange={(event) => setComments(event.target.value)}
+              placeholder="Enter your comments here"
+            />
+          </label>
+        </div>
+
+        <div className="modal-footer">
+          <div className="form-note">
+            <span>i</span>
+            The department will be removed from the list after confirmation.
+          </div>
+          <div className="footer-actions">
+            <button className="cancel-button" onClick={onClose}>
+              Cancel
+            </button>
+            <button className="next-button" onClick={onClose}>
+              Yes, Delete
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -728,12 +1431,14 @@ function TextField({
   required = false,
   half = false,
   value,
+  error,
   onChange,
 }: {
   label: string;
   required?: boolean;
   half?: boolean;
   value?: string;
+  error?: string;
   onChange?: (value: string) => void;
 }) {
   return (
@@ -746,6 +1451,7 @@ function TextField({
         onChange={(event) => onChange?.(event.target.value)}
         placeholder="Enter here"
       />
+      {error && <small className="field-error">{error}</small>}
     </label>
   );
 }
