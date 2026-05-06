@@ -1,7 +1,7 @@
 
 import { HashRouter } from "react-router-dom";
 <HashRouter><App /></HashRouter>
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Sidebar from "./components/sidebar";
 import Topbar from "./components/topbar";
 import {
@@ -22,7 +22,8 @@ type ViewName =
   | "Vehicles"
   | "Organization Details"
   | "Department Details"
-  | "Distribution Details";
+  | "Distribution Details"
+  | "Employee Details";
 
 interface Organization {
   code: string;
@@ -89,6 +90,7 @@ const tabOrder: ViewName[] = [
   "Organization Details",
   "Department Details",
   "Distribution Details",
+  "Employee Details",
 ];
 
 const organizations: Organization[] = [
@@ -180,7 +182,7 @@ const countryOptions = [
   "United States",
 ].sort((a, b) => a.localeCompare(b));
 
-const orgTypeOptions = ["vendor", "org", "customer", "supplier"];
+const orgTypeOptions = ["Vendor", "Org", "Customer", "Supplier"];
 
 const distributionChannels: DistributionChannel[] = [
   { id: 1, orgCode: "ORG-0004", orgName: "Samsung", distributionCode: "DC-0007", distributionName: "E-Commerce", status: "Active" },
@@ -197,6 +199,41 @@ const offices: Office[] = [
   { id: 4, org: "[ORG-0002] MKG Organization", office: "[OFF003] GKM", officeType: "MainBranch", warehouse: "Yes", contactName: "K Kumar", phone: "8099153866", city: "Secunderabad", status: "Active" },
   { id: 5, org: "[ORG-0002] MKG Organization", office: "[OFF002] KG office", officeType: "MainBranch", warehouse: "Yes", contactName: "Sai Kumar", phone: "9887766788", city: "Secunderabad", status: "Active" },
   { id: 6, org: "[ORG-0002] MKG Organization", office: "[OFF001] MKG Office", officeType: "Headoffice", warehouse: "Yes", contactName: "Karthik", phone: "8639211702", city: "Hyderabad", status: "Active" },
+];
+
+interface Employee {
+  id: number;
+  employeeCode: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  acronym: string;
+  email: string;
+  phone: string;
+  department: string;
+  office: string;
+  organization: string;
+  orgCode: string;
+  designation: string;
+  status: "Active" | "Inactive";
+  gender: string;
+  joiningDate: string;
+}
+
+const employees: Employee[] = [
+  { id: 1, employeeCode: "EMP009", firstName: "Ajith", lastName: "Kumar", displayName: "Ajith Kumar", acronym: "AK", email: "vbn@gmail.com", phone: "7410258962", department: "[D002]Account Department", office: "[OFF01]MKG Office", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Salesman", status: "Active", gender: "Male", joiningDate: "01/15/2025" },
+  { id: 2, employeeCode: "EMP001", firstName: "Bharath", lastName: "Yadav", displayName: "Bharath Yadav", acronym: "EBY", email: "bharath23@gmail.com", phone: "8639211702", department: "[D111]Sales Department", office: "[OFF01]MKG Office", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Manager", status: "Active", gender: "Male", joiningDate: "02/10/2025" },
+  { id: 3, employeeCode: "EMP021", firstName: "Karthik", lastName: "", displayName: "Karthik", acronym: "", email: "karthik@gmail.com", phone: "1234567890", department: "[-]-", office: "[-]-", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Manager", status: "Inactive", gender: "Male", joiningDate: "03/05/2025" },
+  { id: 4, employeeCode: "EMP019", firstName: "Tillu", lastName: "", displayName: "Tillu", acronym: "", email: "tilly@gmail.com", phone: "9464648484", department: "[-]-", office: "[-]-", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Manatee", status: "Inactive", gender: "Male", joiningDate: "03/12/2025" },
+  { id: 5, employeeCode: "EMP010", firstName: "Edu Rahul", lastName: "Yadav", displayName: "Rahul Yadav", acronym: "ERY", email: "rahul745@gmail.com", phone: "9886655203", department: "[D111]Sales Department", office: "[OFF01]MKG Office", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Salesman", status: "Active", gender: "Male", joiningDate: "04/01/2025" },
+  { id: 6, employeeCode: "-", firstName: "rajesh", lastName: "", displayName: "rajesh", acronym: "", email: "rajeshm@gmail.com", phone: "9640994699", department: "[-]-", office: "[-]-", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Store Manager", status: "Active", gender: "Male", joiningDate: "04/15/2025" },
+  { id: 7, employeeCode: "-", firstName: "Kumar", lastName: "", displayName: "Kumar", acronym: "", email: "kumar@gmail.com", phone: "9966331234", department: "[-]-", office: "[-]-", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Store Incharge", status: "Active", gender: "Male", joiningDate: "05/01/2025" },
+  { id: 8, employeeCode: "EMP005", firstName: "Marthand", lastName: "Satya", displayName: "Marthand Satya", acronym: "MS", email: "", phone: "1212121212", department: "[D002]Account Department", office: "[OFF01]MKG Office", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Checker", status: "Inactive", gender: "Male", joiningDate: "05/20/2025" },
+  { id: 9, employeeCode: "EMP018", firstName: "hz", lastName: "", displayName: "hz", acronym: "", email: "vabbhs@gam.com", phone: "9494040400", department: "[-]-", office: "[-]-", organization: "MKG Organization", orgCode: "ORG-0002", designation: "gnah", status: "Active", gender: "Male", joiningDate: "06/10/2025" },
+  { id: 10, employeeCode: "EMP022", firstName: "Harshith S", lastName: "Reddy", displayName: "Harish Reddy", acronym: "HSR", email: "harish.reddy@gmail.com", phone: "9876511001", department: "[D005]Warehouse", office: "[OFF007]Samsung Hyderabad", organization: "Samsung", orgCode: "ORG-0004", designation: "Service Executive", status: "Active", gender: "Male", joiningDate: "06/25/2025" },
+  { id: 11, employeeCode: "EMP027", firstName: "Dinesh", lastName: "Yadav", displayName: "Dinesh Yadav", acronym: "DY", email: "dinesh.yadav@gmail.com", phone: "9876511006", department: "[D005]Warehouse", office: "[OFF007]Samsung Hyderabad", organization: "Samsung", orgCode: "ORG-0004", designation: "Warehouse Manager", status: "Active", gender: "Male", joiningDate: "07/01/2025" },
+  { id: 12, employeeCode: "EMP017", firstName: "Arise", lastName: "", displayName: "Arise", acronym: "", email: "Arise@gmail.com", phone: "9767664848", department: "[-]-", office: "[-]-", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Salesman", status: "Active", gender: "Male", joiningDate: "07/15/2025" },
+  { id: 13, employeeCode: "EMP020", firstName: "Mithil", lastName: "", displayName: "Mithil", acronym: "", email: "mithil@gmail.com", phone: "1212121212", department: "[-]-", office: "[-]-", organization: "MKG Organization", orgCode: "ORG-0002", designation: "Accountant", status: "Inactive", gender: "Male", joiningDate: "08/01/2025" },
 ];
 
 interface Department {
@@ -241,6 +278,13 @@ function App() {
   const [organizationSearch, setOrganizationSearch] = useState("");
   const [distributionSearch, setDistributionSearch] = useState("");
   const [departmentSearch, setDepartmentSearch] = useState("");
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [employeeViewMode, setEmployeeViewMode] = useState<"table" | "grid">("table");
+  const [employeeFilterActive, setEmployeeFilterActive] = useState(true);
+  const [employeeFilterInactive, setEmployeeFilterInactive] = useState(true);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
+  const [employeeActionMenu, setEmployeeActionMenu] = useState<number | null>(null);
 
   const filteredOrganizations = organizations.filter((organization) =>
     organization.name.toLowerCase().includes(organizationSearch.toLowerCase()) ||
@@ -254,6 +298,19 @@ function App() {
     channel.distributionName.toLowerCase().includes(distributionSearch.toLowerCase()) ||
     channel.distributionCode.toLowerCase().includes(distributionSearch.toLowerCase()),
   );
+
+  const filteredEmployees = employees.filter((emp) => {
+    const matchesSearch =
+      emp.displayName.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+      emp.firstName.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+      emp.lastName.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+      emp.employeeCode.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+      emp.acronym.toLowerCase().includes(employeeSearch.toLowerCase());
+    const matchesStatus =
+      (employeeFilterActive && emp.status === "Active") ||
+      (employeeFilterInactive && emp.status === "Inactive");
+    return matchesSearch && matchesStatus;
+  });
 
   const handleRefresh = () => {
     console.log("Refresh clicked");
@@ -270,6 +327,7 @@ function App() {
       const target = event.target as HTMLElement;
       if (!target.closest(".card-action-menu") && !target.closest(".card-more")) {
         setOpenActionMenu(null);
+        setEmployeeActionMenu(null);
       }
     };
     document.addEventListener("mousedown", closeActionMenu);
@@ -295,6 +353,11 @@ function App() {
   const showDistributionDetails = (channel: DistributionChannel) => {
     setSelectedDistributionChannel(channel);
     openView("Distribution Details");
+  };
+
+  const showEmployeeDetails = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    openView("Employee Details");
   };
 
   const closeView = (view: ViewName) => {
@@ -671,6 +734,176 @@ function App() {
             </section>
           )}
 
+          {activeView === "Employee" && (
+            <section className="employee-page">
+              <div className="employee-header">
+                <div className="organization-title-row">
+                  <h1>Employee ({employees.length})</h1>
+                  <button className="refresh-button" aria-label="Refresh" onClick={handleRefresh}>
+                    <RefreshIcon />
+                  </button>
+                </div>
+
+                <div className="employee-actions" onMouseDown={(event) => event.stopPropagation()}>
+                  <div className="employee-status-filter" aria-label="Employee status filters">
+                    <strong>Status:</strong>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={employeeFilterActive}
+                        onChange={(event) => setEmployeeFilterActive(event.target.checked)}
+                      />
+                      Active
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={employeeFilterInactive}
+                        onChange={(event) => setEmployeeFilterInactive(event.target.checked)}
+                      />
+                      InActive
+                    </label>
+                  </div>
+                  <label className="distribution-search employee-search">
+                    <input
+                      value={employeeSearch}
+                      onChange={(event) => setEmployeeSearch(event.target.value)}
+                      placeholder="Search by Employee Name/Acronym"
+                      aria-label="Search employees"
+                    />
+                    <SearchIcon />
+                  </label>
+                  <button className="new-button employee-new-button" onClick={() => setShowAddEmployeeModal(true)}>
+                    <span>+</span> New
+                  </button>
+                  <div className="employee-view-toggle" aria-label="Employee view mode">
+                    <button
+                      className={employeeViewMode === "grid" ? "view-toggle-active" : ""}
+                      aria-label="Grid view"
+                      onClick={() => setEmployeeViewMode("grid")}
+                    >
+                      <GridIcon />
+                    </button>
+                    <button
+                      className={employeeViewMode === "table" ? "view-toggle-active" : ""}
+                      aria-label="List view"
+                      onClick={() => setEmployeeViewMode("table")}
+                    >
+                      <ListIcon />
+                    </button>
+                  </div>
+                  <button className="filter-button" aria-label="Filter">
+                    <FilterIcon />
+                  </button>
+                  <button
+                    className="more-button"
+                    aria-label="Export options"
+                    onClick={() => setShowExports((value) => !value)}
+                  >
+                    <ThreeDotIcon />
+                  </button>
+
+                  {showExports && (
+                    <div className="export-menu">
+                      <button className="export-item">
+                        <ExcelIcon /> Export to Excel
+                      </button>
+                      <button className="export-item">
+                        <PdfIcon /> Export to PDF
+                      </button>
+                      <button className="export-item">
+                        <CsvIcon /> Export to CSV
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {employeeViewMode === "table" ? (
+                <article className="employee-table-card">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>S No</th>
+                        <th>Employee Code / Name</th>
+                        <th>Email</th>
+                        <th>Phone No</th>
+                        <th>Department</th>
+                        <th>Office</th>
+                        <th>Organization</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredEmployees.map((employee, index) => (
+                        <tr key={`${employee.employeeCode}-${employee.id}`}>
+                          <td>{index + 1}</td>
+                          <td>[{employee.employeeCode}] {employee.displayName}</td>
+                          <td>{employee.email || "-"}</td>
+                          <td>{employee.phone}</td>
+                          <td>{employee.department}</td>
+                          <td>{employee.office}</td>
+                          <td>[{employee.orgCode}]{employee.organization}</td>
+                          <td>{employee.status}</td>
+                          <td>
+                            <div className="table-actions employee-row-actions">
+                              <button aria-label="View employee" onClick={() => showEmployeeDetails(employee)}>
+                                <EyeIcon />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </article>
+              ) : (
+                <div className="employee-card-grid">
+                  {filteredEmployees.map((employee) => (
+                    <article className="employee-card" key={`${employee.employeeCode}-${employee.id}`} onClick={() => showEmployeeDetails(employee)}>
+                      <div className="employee-card-top">
+                        <span className={`employee-card-status ${employee.status === "Active" ? "employee-card-status-active" : ""}`}>
+                          {employee.status}
+                        </span>
+                        <div className="card-more-wrapper">
+                          <button
+                            className="card-more"
+                            aria-label="Employee actions"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setEmployeeActionMenu((current) => (current === employee.id ? null : employee.id));
+                            }}
+                          >
+                            <ThreeDotIcon />
+                          </button>
+                          {employeeActionMenu === employee.id && (
+                            <div className="card-action-menu" onClick={(event) => event.stopPropagation()}>
+                              <button type="button" className="action-item">
+                                Edit
+                              </button>
+                              <button type="button" className="action-item action-item-danger">
+                                {employee.status === "Active" ? "Inactive" : "Active"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="employee-avatar">{employee.acronym || ""}</div>
+                      <h2>{employee.displayName}{employee.acronym ? ` (${employee.acronym})` : ""}</h2>
+                      <p>{employee.employeeCode} &bull; {employee.designation}</p>
+                      <div className="employee-card-contact">
+                        <span><PhoneIcon /> {employee.phone}</span>
+                        <span><MailIcon /> {employee.email || "-"}</span>
+                        <span><MailIcon /> {employee.organization}</span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
           {activeView === "Office" && (
             <section className="office-page">
               <div className="office-header">
@@ -826,6 +1059,31 @@ function App() {
             </section>
           )}
 
+          {activeView === "Employee Details" && selectedEmployee && (
+            <section className="details-page">
+              <h1>Employee Details</h1>
+              <article className="details-card">
+                <h2>Details</h2>
+                <div className="details-grid">
+                  <Detail label="Employee Code" value={selectedEmployee.employeeCode} />
+                  <Detail label="First Name" value={selectedEmployee.firstName} />
+                  <Detail label="Last Name" value={selectedEmployee.lastName || "-"} />
+                  <Detail label="Display Name" value={selectedEmployee.displayName} />
+                  <Detail label="Acronym" value={selectedEmployee.acronym || "-"} />
+                  <Detail label="Email" value={selectedEmployee.email || "-"} />
+                  <Detail label="Phone No" value={selectedEmployee.phone} />
+                  <Detail label="Gender" value={selectedEmployee.gender} />
+                  <Detail label="Joining Date" value={selectedEmployee.joiningDate} />
+                  <Detail label="Department" value={selectedEmployee.department} />
+                  <Detail label="Office" value={selectedEmployee.office} />
+                  <Detail label="Organization" value={selectedEmployee.organization} />
+                  <Detail label="Designation" value={selectedEmployee.designation} />
+                  <Detail label="Status" value={selectedEmployee.status} />
+                </div>
+              </article>
+            </section>
+          )}
+
           {!activeView && <div className="empty-state"></div>}
         </main>
       </div>
@@ -859,6 +1117,7 @@ function App() {
           }}
         />
       )}
+      {showAddEmployeeModal && <AddEmployeeModal onClose={() => setShowAddEmployeeModal(false)} />}
     </div>
   );
 }
@@ -1426,12 +1685,263 @@ function DeleteDepartmentModal({ department, onClose }: { department: Department
   );
 }
 
+function AddEmployeeModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [form, setForm] = useState({
+    employeeCode: "EMP029",
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    displayName: "",
+    acronym: "",
+    gender: "",
+    joiningDate: "",
+    organization: "",
+    office: "",
+    department: "",
+    employmentType: "",
+    designation: "",
+    manager: "",
+    grade: "",
+    effectiveStartDate: "",
+    deskPhone: "",
+    sittingLocation: "",
+    birthDate: "",
+    isMarried: false,
+    marriageDate: "",
+    mobile: "",
+    alternativeMobile: "",
+    personalEmail: "",
+    officeEmail: "",
+    nationality: "",
+    remarks: "",
+    employeeImage: "",
+  });
+
+  const canContinueEmployee = useMemo(
+    () =>
+      form.firstName.trim().length > 0 &&
+      form.lastName.trim().length > 0 &&
+      form.displayName.trim().length > 0 &&
+      form.acronym.trim().length > 0 &&
+      form.gender.trim().length > 0 &&
+      form.joiningDate.trim().length > 0,
+    [form],
+  );
+
+  const canContinueJob = useMemo(
+    () =>
+      form.organization.trim().length > 0 &&
+      form.office.trim().length > 0 &&
+      form.department.trim().length > 0 &&
+      form.employmentType.trim().length > 0 &&
+      form.designation.trim().length > 0 &&
+      form.grade.trim().length > 0 &&
+      form.effectiveStartDate.trim().length > 0,
+    [form],
+  );
+
+  const mobileError = form.mobile && !/^\d+$/.test(form.mobile) ? "Invalid number" : "";
+  const alternativeMobileError = form.alternativeMobile && !/^\d+$/.test(form.alternativeMobile) ? "Invalid number" : "";
+  const deskPhoneError = form.deskPhone && !/^\d+$/.test(form.deskPhone) ? "Invalid number" : "";
+  const personalEmailError = form.personalEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.personalEmail) ? "Invalid email" : "";
+  const officeEmailError = form.officeEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.officeEmail) ? "Invalid email" : "";
+
+  const canContinueContact = useMemo(
+    () =>
+      form.birthDate.trim().length > 0 &&
+      form.mobile.trim().length > 0 &&
+      form.nationality.trim().length > 0 &&
+      !mobileError &&
+      !alternativeMobileError &&
+      !deskPhoneError &&
+      !personalEmailError &&
+      !officeEmailError,
+    [form, mobileError, alternativeMobileError, deskPhoneError, personalEmailError, officeEmailError],
+  );
+
+  const updateField = (field: keyof typeof form, value: string) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const updateBooleanField = (field: "isMarried", value: boolean) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const goBack = () => {
+    if (step === 1) {
+      onClose();
+      return;
+    }
+    setStep((current) => (current - 1) as 1 | 2 | 3 | 4);
+  };
+
+  const goNext = () => {
+    if (step === 4) {
+      onClose();
+      return;
+    }
+    setStep((current) => (current + 1) as 1 | 2 | 3 | 4);
+  };
+
+  const canContinue = step === 1 ? canContinueEmployee : step === 2 ? canContinueJob : step === 3 ? canContinueContact : true;
+
+  return (
+    <div className="modal-backdrop">
+      <section className="add-modal employee-modal" role="dialog" aria-modal="true" aria-labelledby="add-employee-title">
+        <div className="modal-heading employee-modal-heading">
+          <div>
+            <h2 id="add-employee-title">Add New Employee</h2>
+            <p>Fill in the details of the new employee</p>
+          </div>
+          <div className="stepper employee-stepper">
+            {["Add Employee", "Job Position Details", "Contact Details", "Preview"].map((label, index) => {
+              const stepNumber = index + 1;
+              const isActive = stepNumber === step;
+              const isComplete = stepNumber < step;
+              return (
+                <div className="step-item" key={label}>
+                  <span className={`step ${isActive ? "step-active" : ""} ${isComplete ? "step-complete" : ""}`}>{stepNumber}</span>
+                  <strong className={isActive ? "employee-step-active-label" : isComplete ? "employee-step-complete-label" : "employee-step-muted-label"}>
+                    {label}
+                  </strong>
+                </div>
+              );
+            })}
+          </div>
+          <button className="modal-close" aria-label="Close" onClick={onClose}>
+            x
+          </button>
+        </div>
+
+        <div className="modal-body employee-modal-body">
+          {step === 1 ? (
+            <div className="employee-form-grid">
+              <label className="code-field employee-code-field">
+                <span>
+                  Employee Code <b>*</b>
+                </span>
+                <strong>{form.employeeCode}</strong>
+              </label>
+              <div className="employee-grid-spacer" />
+              <TextField label="Middle Name" half value={form.middleName} placeholder="Enter Middle Name" onChange={(value) => updateField("middleName", value)} />
+              <TextField label="First Name" required half value={form.firstName} placeholder="Enter First Name" onChange={(value) => updateField("firstName", value)} />
+              <TextField label="Display Name" required half value={form.displayName} placeholder="Enter Display Name" onChange={(value) => updateField("displayName", value)} />
+              <TextField label="Last Name" required half value={form.lastName} placeholder="Enter Last Name" onChange={(value) => updateField("lastName", value)} />
+              <SelectField label="Gender" required value={form.gender} placeholder="Select Gender" options={["Male", "Female", "Other"]} onChange={(value) => updateField("gender", value)} />
+              <TextField label="Acronym" required half value={form.acronym} placeholder="Enter Acronym" onChange={(value) => updateField("acronym", value)} />
+              <DateField label="Joining Date" required value={form.joiningDate} placeholder="Select Joining Date" onChange={(value) => updateField("joiningDate", value)} />
+              <div className="employee-upload">
+                <span>Employee Image</span>
+                <label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => updateField("employeeImage", event.target.files?.[0]?.name ?? "")}
+                  />
+                  <CameraIcon />
+                  {form.employeeImage || "Upload Image"}
+                </label>
+              </div>
+            </div>
+          ) : step === 2 ? (
+            <div className="employee-form-grid employee-job-grid">
+              <SelectField label="Organization" required value={form.organization} placeholder="Select Organization" options={["Metro Cash & Carry", "MKG Organization", "Samsung"]} onChange={(value) => updateField("organization", value)} />
+              <SelectField label="Office" required value={form.office} placeholder="Select Office" options={["OFFOO1 - MKG Office", "OFFOO1 - KG Office", "OFFOO3 - Mastishka", "OFFOO4 - GKM"]} onChange={(value) => updateField("office", value)} />
+              <SelectField label="Department" required value={form.department} placeholder="Select Department" options={["Account Department", "Technical Department", "Demo 1"]} onChange={(value) => updateField("department", value)} />
+              <SelectField label="Employment Type" required value={form.employmentType} placeholder="Select Employment Type" options={["Full Time", "Part Time", "Contract"]} onChange={(value) => updateField("employmentType", value)} />
+              <SelectField label="Designation" required value={form.designation} placeholder="Select Designation" options={["Checker", "Accountant", "Salesman", "Warehouse Manager", "Manager", "Admin"]} onChange={(value) => updateField("designation", value)} />
+              <SelectField label="Manager" value={form.manager} placeholder="Select Manager" options={["manager 1", "manager2"]} onChange={(value) => updateField("manager", value)} />
+              <SelectField label="Grade" required value={form.grade} placeholder="Select Grade" options={["G1-L1", "G1-L2", "G1-L3", "G3-L1"]} onChange={(value) => updateField("grade", value)} />
+              <DateField label="Effective Start Date" required value={form.effectiveStartDate} placeholder="Select Effective Start Date" onChange={(value) => updateField("effectiveStartDate", value)} />
+            </div>
+          ) : step === 3 ? (
+            <div className="employee-form-grid employee-contact-grid">
+              <NumberField label="Desk Phone" value={form.deskPhone} placeholder="Enter Desk Phone" error={deskPhoneError} onChange={(value) => updateField("deskPhone", value)} />
+              <TextField label="Sitting Location" half value={form.sittingLocation} placeholder="Enter Sitting Location" onChange={(value) => updateField("sittingLocation", value)} />
+              <DateField label="Birth Date" required value={form.birthDate} placeholder="Select Birth Date" onChange={(value) => updateField("birthDate", value)} />
+              <ToggleField label="Is Married" checked={form.isMarried} onChange={(value) => updateBooleanField("isMarried", value)} />
+              {form.isMarried && <DateField label="Marriage Date" value={form.marriageDate} placeholder="Select Marriage Date" onChange={(value) => updateField("marriageDate", value)} />}
+              <NumberField label="Mobile" required value={form.mobile} placeholder="Enter Mobile" error={mobileError} onChange={(value) => updateField("mobile", value)} />
+              <NumberField label="Alternative Mobile" value={form.alternativeMobile} placeholder="Enter Alternative Mobile" error={alternativeMobileError} onChange={(value) => updateField("alternativeMobile", value)} />
+              <EmailField label="Personal Email" value={form.personalEmail} placeholder="Enter Personal Email" error={personalEmailError} onChange={(value) => updateField("personalEmail", value)} />
+              <EmailField label="Office Email" value={form.officeEmail} placeholder="Enter Office Email" error={officeEmailError} onChange={(value) => updateField("officeEmail", value)} />
+              <SelectField
+                label="Nationality"
+                required
+                value={form.nationality}
+                placeholder="Select Nationality"
+                options={nationalityOptions}
+                onChange={(value) => updateField("nationality", value)}
+              />
+              <label className="form-field employee-remarks">
+                <span>Remarks</span>
+                <textarea value={form.remarks} onChange={(event) => updateField("remarks", event.target.value)} placeholder="Enter Remarks" />
+              </label>
+            </div>
+          ) : (
+            <div className="employee-preview-grid">
+              <PreviewItem label="Employee Code" value={form.employeeCode} />
+              <PreviewItem label="First Name" value={form.firstName} />
+              <PreviewItem label="Middle Name" value={form.middleName} />
+              <PreviewItem label="Last Name" value={form.lastName} />
+              <PreviewItem label="Display Name" value={form.displayName} />
+              <PreviewItem label="Acronym" value={form.acronym} />
+              <PreviewItem label="Gender" value={form.gender} />
+              <PreviewItem label="Joining Date" value={form.joiningDate} />
+              <PreviewItem label="Employment Type" value={form.employmentType} />
+              <PreviewItem label="Designation" value={form.designation} />
+              <PreviewItem label="Grade" value={form.grade} />
+              <PreviewItem label="Manager" value={form.manager} />
+              <PreviewItem label="Organization" value={form.organization} />
+              <PreviewItem label="Office" value={form.office} />
+              <PreviewItem label="Department" value={form.department} />
+              <PreviewItem label="Birth Date" value={form.birthDate} />
+              <PreviewItem label="Mobile" value={form.mobile} />
+              <PreviewItem label="Personal Email" value={form.personalEmail} />
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer employee-modal-footer">
+          {step > 1 && (
+            <button className="cancel-button employee-back-button" onClick={goBack}>
+              <BackIcon /> Back
+            </button>
+          )}
+          <div className="form-note">
+            <InfoIcon />
+            {step === 1
+              ? "Please fill the required details, click on 'Next' button to proceed"
+              : step === 4
+                ? "Verify detailed preview and click on 'Submit' to proceed"
+                : "To modify the previous details, click on 'Back' button"}
+          </div>
+          <div className="footer-actions">
+            <button className="cancel-button" onClick={onClose}>
+              Cancel
+            </button>
+            <button
+              className="next-button"
+              disabled={!canContinue}
+              onClick={goNext}
+            >
+              {step === 4 ? "Submit" : "Next"} <ChevronRightIcon />
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function TextField({
   label,
   required = false,
   half = false,
   value,
   error,
+  placeholder = "Enter here",
   onChange,
 }: {
   label: string;
@@ -1439,6 +1949,7 @@ function TextField({
   half?: boolean;
   value?: string;
   error?: string;
+  placeholder?: string;
   onChange?: (value: string) => void;
 }) {
   return (
@@ -1449,10 +1960,87 @@ function TextField({
       <input
         value={onChange ? value ?? "" : undefined}
         onChange={(event) => onChange?.(event.target.value)}
-        placeholder="Enter here"
+        placeholder={placeholder}
       />
       {error && <small className="field-error">{error}</small>}
     </label>
+  );
+}
+
+function NumberField({
+  label,
+  required = false,
+  value,
+  placeholder,
+  error,
+  onChange,
+}: {
+  label: string;
+  required?: boolean;
+  value: string;
+  placeholder: string;
+  error?: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="form-field">
+      <span>
+        {label} {required && <b>*</b>}
+      </span>
+      <input inputMode="numeric" value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
+      {error && <small className="field-error employee-field-error">{error}</small>}
+    </label>
+  );
+}
+
+function EmailField({
+  label,
+  value,
+  placeholder,
+  error,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  placeholder: string;
+  error?: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="form-field">
+      <span>{label}</span>
+      <input type="email" value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
+      {error && <small className="field-error employee-field-error">{error}</small>}
+    </label>
+  );
+}
+
+function ToggleField({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <div className="form-field employee-toggle-field">
+      <span>{label}</span>
+      <button type="button" className={`employee-toggle ${checked ? "employee-toggle-on" : ""}`} onClick={() => onChange(!checked)}>
+        <i>{checked ? "✓" : ""}</i>
+      </button>
+      <strong>{checked ? "Yes" : "No"}</strong>
+    </div>
+  );
+}
+
+function PreviewItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="employee-preview-item">
+      <span>{label}</span>
+      <strong>{value || "-"}</strong>
+    </div>
   );
 }
 
@@ -1461,33 +2049,205 @@ function SelectField({
   required = false,
   value,
   options = [],
+  placeholder = "Select here",
   onChange,
 }: {
   label: string;
   required?: boolean;
   value?: string;
   options?: string[];
+  placeholder?: string;
   onChange?: (value: string) => void;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedValue = value ?? "";
+
   return (
     <label className="form-field">
       <span>
         {label} {required && <b>*</b>}
       </span>
-      <select
-        value={onChange ? value ?? "" : undefined}
-        defaultValue={onChange ? undefined : ""}
-        onChange={(event) => onChange?.(event.target.value)}
-      >
-        <option value="" disabled>
-          Select here
-        </option>
-        {options.map((option) => (
-          <option value={option} key={option}>
-            {option}
-          </option>
-        ))}
-      </select>
+      <div className="soft-select">
+        <button type="button" onClick={() => setIsOpen((current) => !current)}>
+          <em className={selectedValue ? "" : "soft-select-placeholder"}>{selectedValue || placeholder}</em>
+          <ChevronDownIcon />
+        </button>
+        {isOpen && (
+          <div className="soft-select-menu">
+            {options.map((option) => (
+              <button
+                type="button"
+                className={option === selectedValue ? "soft-select-selected" : ""}
+                key={option}
+                onClick={() => {
+                  onChange?.(option);
+                  setIsOpen(false);
+                }}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </label>
+  );
+}
+
+const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+const nationalityOptions = [
+  "Indian",
+  "American",
+  "British",
+  "Australian",
+  "Canadian",
+  "Chinese",
+  "French",
+  "German",
+  "Indonesian",
+  "Italian",
+  "Japanese",
+  "Malaysian",
+  "Mexican",
+  "Nepalese",
+  "Singaporean",
+  "South African",
+  "Sri Lankan",
+  "Thai",
+  "UAE",
+  "Other",
+];
+
+function formatDateValue(date: Date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${month}/${day}/${date.getFullYear()}`;
+}
+
+function parseDateValue(value: string) {
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, month, day, year] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function DateField({
+  label,
+  required = false,
+  value,
+  placeholder,
+  onChange,
+}: {
+  label: string;
+  required?: boolean;
+  value: string;
+  placeholder: string;
+  onChange: (value: string) => void;
+}) {
+  const selectedDate = parseDateValue(value);
+  const fieldRef = useRef<HTMLLabelElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [visibleMonth, setVisibleMonth] = useState(() => selectedDate ?? new Date(2026, 2, 1));
+  const [calendarPosition, setCalendarPosition] = useState({ left: 0, top: 0 });
+  const year = visibleMonth.getFullYear();
+  const month = visibleMonth.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+  const leadingBlanks = firstDay === 0 ? 6 : firstDay - 1;
+  const days = Array.from({ length: daysInMonth }, (_, index) => index + 1);
+
+  const moveMonth = (offset: number) => {
+    setVisibleMonth((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
+  };
+
+  const selectDay = (day: number) => {
+    onChange(formatDateValue(new Date(year, month, day)));
+    setIsOpen(false);
+  };
+
+  const placeCalendar = () => {
+    const rect = fieldRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const calendarWidth = 320;
+    const calendarHeight = 360;
+    const gap = 6;
+    const viewportPadding = 12;
+    const hasRoomBelow = rect.bottom + gap + calendarHeight <= window.innerHeight - viewportPadding;
+    const top = hasRoomBelow
+      ? rect.bottom + gap
+      : Math.max(viewportPadding, rect.top - calendarHeight - gap);
+    const left = Math.min(rect.left, window.innerWidth - calendarWidth - viewportPadding);
+
+    setCalendarPosition({ left: Math.max(viewportPadding, left), top });
+  };
+
+  const toggleCalendar = () => {
+    placeCalendar();
+    setIsOpen((current) => !current);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    placeCalendar();
+    window.addEventListener("resize", placeCalendar);
+    window.addEventListener("scroll", placeCalendar, true);
+
+    return () => {
+      window.removeEventListener("resize", placeCalendar);
+      window.removeEventListener("scroll", placeCalendar, true);
+    };
+  }, [isOpen]);
+
+  return (
+    <label className="form-field date-field" ref={fieldRef}>
+      <span>
+        {label} {required && <b>*</b>}
+      </span>
+      <input
+        type="text"
+        readOnly
+        value={value}
+        placeholder={placeholder}
+        onClick={toggleCalendar}
+      />
+      <button type="button" className="date-icon-button" aria-label={`Open ${label} calendar`} onClick={toggleCalendar}>
+        <CalendarIcon />
+      </button>
+      {isOpen && (
+        <div className="calendar-popover" style={{ left: calendarPosition.left, top: calendarPosition.top }}>
+          <div className="calendar-heading">
+            <button type="button" onClick={() => moveMonth(-1)} aria-label="Previous month">
+              <ChevronLeftIcon />
+            </button>
+            <strong>{monthNames[month]} {year}</strong>
+            <button type="button" onClick={() => moveMonth(1)} aria-label="Next month">
+              <ChevronRightIcon />
+            </button>
+          </div>
+          <div className="calendar-weekdays">
+            {["M", "T", "W", "T", "F", "S", "S"].map((weekday, index) => (
+              <span key={`${weekday}-${index}`}>{weekday}</span>
+            ))}
+          </div>
+          <div className="calendar-grid">
+            <span className="calendar-month-label">{monthNames[month]}</span>
+            {Array.from({ length: leadingBlanks }).map((_, index) => (
+              <i key={`blank-${index}`} />
+            ))}
+            {days.map((day) => {
+              const isSelected = selectedDate?.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === day;
+              return (
+                <button type="button" className={isSelected ? "calendar-day-selected" : ""} key={day} onClick={() => selectDay(day)}>
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </label>
   );
 }
@@ -1554,6 +2314,102 @@ function FilterIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M3 5h18l-7 8v5l-4 2v-7L3 5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function GridIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="5" height="5" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="12" y="3" width="5" height="5" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="3" y="12" width="5" height="5" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="12" y="12" width="5" height="5" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function ListIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+      <path d="M4 6h.01M4 12h.01M4 18h.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M7 4l2.2 4.7-1.8 1.4c1.1 2.2 2.8 3.9 5 5l1.5-1.8L18.5 16l-1.2 3.2c-.3.8-1.1 1.2-1.9 1C9.5 18.8 5.1 14.5 3.8 8.6c-.2-.8.3-1.6 1-1.9L7 4Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MailIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M4 7l8 6 8-6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CameraIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M8 7l1.5-2h5L16 7h2.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-7A2.5 2.5 0 0 1 5.5 7H8Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <circle cx="12" cy="13" r="3" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="16" rx="1" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M8 3v4M16 3v4M4 10h16M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+      <path d="M12 11v6M12 7h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ChevronLeftIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ChevronDownIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function BackIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
