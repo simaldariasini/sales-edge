@@ -3,6 +3,7 @@
 @import "../components/layout/AppLayout.css";
 @import "../components/sidebar/Sidebar.css";
 @import "../components/topbar/Topbar.css";
+@import "../components/topbar/SideProfile.css";
 @import "../components/dropdown/DropdownPanel.css";
 @import "../pages/System/System.css";
 @import "./pageControls.css";

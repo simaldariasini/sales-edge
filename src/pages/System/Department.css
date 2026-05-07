@@ -168,6 +168,10 @@
   row-gap: 23px;
 }
 
+.department-form-grid .form-field:nth-child(odd) {
+  margin-left: 12px;
+}
+
 .department-form-grid .form-field span {
   color: #1d1f2c;
   font-family: "DM Sans", Arial, sans-serif;
@@ -183,7 +187,7 @@
   border: 1px solid #7d8591;
   border-radius: 3px;
   color: #1d1f2c;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 400;
 }
 
@@ -237,5 +241,9 @@
   row-gap: 20px;
   padding: 4px 10px;
   margin-left: 30px;
+}
+
+.department-preview-card .employee-preview-item strong {
+  font-size: 15px;
 }
 
