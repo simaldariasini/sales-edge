@@ -1,0 +1,15 @@
+@import "./legacyBase.css";
+@import "./common.css";
+@import "../components/layout/AppLayout.css";
+@import "../components/sidebar/Sidebar.css";
+@import "../components/topbar/Topbar.css";
+@import "../components/dropdown/DropdownPanel.css";
+@import "../pages/System/System.css";
+@import "./pageControls.css";
+@import "../pages/System/Organization.css";
+@import "../pages/System/SystemDetails.css";
+@import "./modal.css";
+@import "../pages/System/DistributionChannel.css";
+@import "../pages/System/Department.css";
+@import "../pages/System/Employee.css";
+@import "../pages/System/Office.css";

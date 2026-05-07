@@ -1,0 +1,141 @@
+.organization-page,
+.distribution-page,
+.office-page {
+  padding: 20px 10px 42px 20px;
+  min-height: 100%;
+}
+/* updated organization  cards style(flying)*/
+.organization-card {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.organization-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.organization-header,
+.distribution-header,
+.office-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 31px;
+}
+
+.office-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.office-search {
+  width: 475px;
+}
+
+.filter-button {
+  width: 28px;
+  height: 35px;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.office-card {
+  width: calc(98vw - 130px);
+  height: 350px;
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow: 0 7px 18px rgba(71, 85, 105, 0.14);
+  overflow: hidden;
+}
+
+.office-card table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+  color: #000813;
+  
+}
+
+.office-card thead tr {
+  height: 56px;
+  border-bottom: 1px solid #d9d9d9;
+  background: #ffffff;
+}
+
+.office-card tbody tr {
+  height: 50px;
+}
+
+.office-card tbody tr:nth-child(even) {
+  background: #f7f7f7;
+}
+
+.office-card th,
+.office-card td {
+  border: 0;
+  padding: 0 10px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+}
+
+.office-card th {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.office-card th:nth-child(1),
+.office-card td:nth-child(1) {
+  width: 5%;
+}
+
+.office-card th:nth-child(2),
+.office-card td:nth-child(2) {
+  width: 18%;
+}
+
+.office-card th:nth-child(3),
+.office-card td:nth-child(3) {
+  width: 22%;
+}
+
+.office-card th:nth-child(4),
+.office-card td:nth-child(4) {
+  width: 10%;
+}
+
+.office-card th:nth-child(5),
+.office-card td:nth-child(5) {
+  width: 9%;
+}
+
+.office-card th:nth-child(6),
+.office-card td:nth-child(6) {
+  width: 10%;
+}
+
+.office-card th:nth-child(7),
+.office-card td:nth-child(7),
+.office-card th:nth-child(8),
+.office-card td:nth-child(8),
+.office-card th:nth-child(9),
+.office-card td:nth-child(9) {
+  width: 8%;
+}
+
+.office-card th:nth-child(10),
+.office-card td:nth-child(10) {
+  width: 12%;
+  text-align: center;
+}

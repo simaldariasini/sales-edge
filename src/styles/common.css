@@ -1,0 +1,17 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "DM Sans", Arial, sans-serif;
+  color: #071b35;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+

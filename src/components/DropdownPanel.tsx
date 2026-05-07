@@ -1,6 +1,5 @@
 import { useState, type FC } from "react";
 import { menuData } from "../data/menu";
-import "./sidebar.css";
 
 interface DropdownPanelProps {
   menuTitle: string;
